@@ -4,3 +4,19 @@ Idea is to develop a classic resource collection, builder and fighter strategy g
 
 
 pip install -e .
+
+
+wow :)
+
+INFO:lord_gym.envs.lord_env:/----------\
+INFO:lord_gym.envs.lord_env:|C        W|
+INFO:lord_gym.envs.lord_env:|          |
+INFO:lord_gym.envs.lord_env:|          |
+INFO:lord_gym.envs.lord_env:|          |
+INFO:lord_gym.envs.lord_env:|          |
+INFO:lord_gym.envs.lord_env:|          |
+INFO:lord_gym.envs.lord_env:|          |
+INFO:lord_gym.envs.lord_env:|          |
+INFO:lord_gym.envs.lord_env:|          |
+INFO:lord_gym.envs.lord_env:|I        S|
+INFO:lord_gym.envs.lord_env:\----------/

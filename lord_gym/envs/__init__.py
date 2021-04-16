@@ -1,1 +1,1 @@
-from lord_gym.envs.foo_env import FooEnv
+from lord_gym.envs.lord_env import LordEnv
