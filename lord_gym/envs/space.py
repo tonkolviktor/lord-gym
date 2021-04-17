@@ -10,8 +10,8 @@ class Map:
     def __init__(self):
         self._map = [[[] for _ in range(self.SIZE_Y)] for _ in range(self.SIZE_X)]
         [[self.create_object(DummyObj((i, j))) for i in range(self.SIZE_Y)] for j in range(self.SIZE_X)]
-
-        self.create_object(Castle((0, 0)))
+        self.castle = Castle((0, 0))
+        self.create_object(self.castle)
         self.create_object(WoodsObj((0, 9)))
         self.create_object(StoneObj((9, 9)))
         self.create_object(IronObj((9, 0)))
@@ -33,3 +33,6 @@ class Map:
             if highest_go is None or highest_go.z_index < go.z_index:
                 highest_go = go
         return go
+
+    def step(self, game: 'LordGame'):
+        pass
