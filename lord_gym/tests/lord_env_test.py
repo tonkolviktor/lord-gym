@@ -4,7 +4,7 @@ import gym
 import unittest
 
 from lord_gym.envs.action import ConvertCitizen
-from lord_gym.envs.agent import IronMan, WoodsMan, StoneMan
+from lord_gym.envs.objects import IronMan, WoodsMan, StoneMan
 from lord_gym.envs.lord_env import LordEnv  # does registration
 
 logging.basicConfig(level=logging.INFO)

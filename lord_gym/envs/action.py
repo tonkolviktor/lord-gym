@@ -1,25 +1,20 @@
 import logging
 
-from lord_gym.envs.agent import GeneralCitizen
-from lord_gym.envs.game import LordGame
+from lord_gym.envs.game import Player
+from lord_gym.envs.objects import IdleCitizen
 
 logger = logging.getLogger(__name__)
 
 
 class Action:
-    def do_action(self, game: LordGame):
+    def do_action(self, player: Player):
         raise NotImplementedError()
 
 
 class ConvertCitizen(Action):
-    def __init__(self, to_type, from_type = GeneralCitizen):
+    def __init__(self, to_type, from_type=IdleCitizen):
         self.to_type = to_type
         self.from_type = from_type
 
-    def do_action(self, game: LordGame):
-        if len(game.inventory.citizens.get(self.from_type, [])) <= 0:
-            logger.debug(f"No citizen convertion be available {self.from_type.__name__}")
-        game.inventory.citizens[self.from_type].pop()
-        citizens = game.inventory.citizens.get(self.to_type, [])
-        citizens.append(self.to_type(game.map.castle.position))
-        game.inventory.citizens[self.to_type] = citizens
+    def do_action(self, player: Player):
+        player.replace_object(self.from_type, self.to_type)
