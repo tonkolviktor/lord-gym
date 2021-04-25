@@ -101,6 +101,7 @@ class IdleCitizen(Citizen):
 class WorkMan(Citizen):
     work_duration = 5
     resource_class = None
+    resource_mine_class = None
     produce_quantity_per_citizen = 1
 
     def __init__(self, position):
@@ -120,21 +121,25 @@ class WorkMan(Citizen):
 
 class WoodsMan(WorkMan):
     resource_class = WoodsResource
+    resource_mine_class = WoodsMine
     produce_quantity_per_citizen = 10
 
 
 class StoneMan(WorkMan):
     resource_class = StoneResource
+    resource_mine_class = StoneMine
     produce_quantity_per_citizen = 10
 
 
 class IronMan(WorkMan):
     work_duration = 7
     resource_class = IronResource
+    resource_mine_class = IronMine
     produce_quantity_per_citizen = 5
 
 
 class GoldMan(WorkMan):
     work_duration = 500
     resource_class = GoldResource
+    resource_mine_class = GoldMine
     produce_quantity_per_citizen = 5

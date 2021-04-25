@@ -1,11 +1,17 @@
 import logging
-from typing import Tuple, List
+from typing import Tuple, List, Dict
 
-from lord_gym.envs.objects import IdleCitizen, Castle, GameObject, Resource, Citizen, GoldResource, WoodsMine, StoneMine, IronMine
+from lord_gym.envs.error import InvalidGameOperation
+from lord_gym.envs.objects import IdleCitizen, Castle, GameObject, Resource, Citizen, GoldResource, WoodsMine, StoneMine, IronMine, Mine, WorkMan
 from lord_gym.envs.map import Map
 
 
 logger = logging.getLogger(__name__)
+
+
+def all_subclasses(cls):
+    return set(cls.__subclasses__()).union(
+        [s for c in cls.__subclasses__() for s in all_subclasses(c)])
 
 
 class LordGame:
@@ -23,6 +29,9 @@ class LordGame:
     def step(self):
         # self.map.step(self)
         self.player1.step()
+
+    def observations(self):
+        return self.player1.observations()
 
 
 class Player:
@@ -51,19 +60,34 @@ class Player:
         self.objects.append(go)  # TODO some struct would be nice which indexes based on class and parent class types
         self.game.map.add_object(go)
 
-    def increase_quantity(self, object_class, new_quantity):
+    def increase_quantity(self, object_class, new_quantity, dry_run=False):
+        if issubclass(object_class, WorkMan):
+            workman = self.citizens_dict.get(object_class)
+            workman_quantity = 0 if workman is None else workman.quantity
+            mine = self.mines_dict.get(object_class.resource_mine_class)
+            if mine is None or mine.quantity <= workman_quantity:
+                raise InvalidGameOperation("Not enough mines for the workman")
+
         to_remove = None
         for o in self.objects:
-            if type(o) == object_class:
-                calculated_quantity = o.quantity + new_quantity
-                if calculated_quantity < 0:
-                    raise ValueError(f"{object_class} has only {o.quantity} quantity cannot do: {new_quantity}")
-                elif calculated_quantity == 0:
-                    to_remove = o
-                    break
-                else:
-                    o.quantity += new_quantity
-                    return
+            if type(o) != object_class:
+                continue
+            calculated_quantity = o.quantity + new_quantity
+            if calculated_quantity < 0:
+                raise InvalidGameOperation(f"{object_class} has only {o.quantity} quantity cannot do: {new_quantity}")
+            elif calculated_quantity == 0:
+                to_remove = o
+                break
+
+            if not dry_run:
+                o.quantity += new_quantity
+            return
+
+        if new_quantity < 0:
+            raise InvalidGameOperation("Cannot start with reducing new object")
+
+        if dry_run:
+            return
 
         if to_remove is not None:
             self.objects.remove(to_remove)
@@ -73,9 +97,12 @@ class Player:
         new_object.quantity += new_quantity
         self.add_object(new_object)
 
-    def replace_object(self, from_object_class, to_object_class, from_quantity = 1, to_quentity = 1):
-        self.increase_quantity(from_object_class, -from_quantity)
-        self.increase_quantity(to_object_class, to_quentity)
+    def replace_object(self, from_object_class, to_object_class, from_quantity = 1, to_quantity = 1):
+        self.increase_quantity(from_object_class, -from_quantity, dry_run=True)
+        self.increase_quantity(to_object_class, to_quantity, dry_run=True)
+
+        self.increase_quantity(from_object_class, -from_quantity, dry_run=False)
+        self.increase_quantity(to_object_class, to_quantity, dry_run=False)
 
     @property
     def resources(self) -> List[Resource]:
@@ -89,6 +116,45 @@ class Player:
             if isinstance(o, Citizen):
                 yield o
 
+    @property
+    def mines(self) -> List[Mine]:
+        for o in self.objects:
+            if isinstance(o, Mine):
+                yield o
+
+    @property
+    def resources_dict(self) -> Dict:
+        return self.to_dict(self.resources)
+
+    @property
+    def citizens_dict(self) -> Dict:
+        return self.to_dict(self.citizens)
+
+    @property
+    def mines_dict(self) -> Dict:
+        return self.to_dict(self.mines)
+
     def get_text_representation(self):
         for object_type in [self.resources, self.citizens]:
             yield ', '.join([str(o) for o in object_type])
+
+    @staticmethod
+    def to_dict(items):
+        return {type(k): k for k in items}
+
+    @staticmethod
+    def to_quantity_dict(items):
+        return {type(k): k.quantity for k in items}
+
+    def observations(self):
+        observations = []
+        info = {}
+
+        for (objects, object_class) in [(self.resources, Resource), (self.citizens, Citizen), (self.mines, Mine)]:
+            resources_dict = self.to_quantity_dict(objects)
+            for cls in all_subclasses(object_class):
+                q = resources_dict.get(cls, 0)
+                observations.append(q)
+                info[cls.__name__] = q
+
+        return observations, info

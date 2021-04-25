@@ -1,0 +1,2 @@
+class InvalidGameOperation(Exception):
+    pass
