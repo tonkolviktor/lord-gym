@@ -33,9 +33,17 @@ class LordGame:
     def observations(self):
         return self.player1.observations()
 
+    def calculate_reward(self):
+        return self.player1.calculate_reward()
+
+    def is_game_over(self):
+        return self.player1.is_winner()
+
 
 class Player:
     def __init__(self, game: LordGame, start_position: Tuple):
+        self.max_experience = 25
+        self.prev_experience = 0
         self.game = game
         self.objects = []
 
@@ -43,7 +51,7 @@ class Player:
         self.add_object(self.castle)
 
         self.create_object(IdleCitizen, start_position, 5)
-        self.create_object(GoldResource, start_position, 100)
+        self.create_object(GoldResource, start_position, 0)
         self.create_object(WoodsMine, start_position, 1)
         self.create_object(StoneMine, start_position, 1)
         self.create_object(IronMine, start_position, 1)
@@ -103,6 +111,29 @@ class Player:
 
         self.increase_quantity(from_object_class, -from_quantity, dry_run=False)
         self.increase_quantity(to_object_class, to_quantity, dry_run=False)
+
+    def calculate_reward(self) -> int:
+        new_exp = self.experience
+        reward = new_exp - self.prev_experience
+
+        # if self.prev_experience < self.max_experience <= new_exp:  # boost for winning
+        #     reward += self.max_experience
+
+        self.prev_experience = new_exp
+        return reward
+
+    @property
+    def experience(self) -> int:
+        experience = 0
+        for mine in self.mines:
+            workman = self.citizens_dict.get(mine.workman_class)
+            if workman is None:
+                continue
+            experience += workman.quantity * workman.produce_quantity_per_citizen
+        return experience
+
+    def is_winner(self):
+        return self.experience >= self.max_experience
 
     @property
     def resources(self) -> List[Resource]:

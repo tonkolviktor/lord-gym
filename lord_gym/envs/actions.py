@@ -29,13 +29,16 @@ class NoAction(Action):
     def get_subtypes(cls) -> int:
         return 1
 
+    def __str__(self):
+        return f"No-Action"
+
 
 class ConvertCitizen(Action):
     pairs = [(IdleCitizen, WoodsMan), (IdleCitizen, StoneMan), (IdleCitizen, IronMan)]
     subtypes = pairs + [(pair[1], pair[0]) for pair in pairs]
 
     def __init__(self, subtype_index: int):
-        (self.to_type, self.from_type) = self.subtypes[subtype_index]
+        (self.from_type, self.to_type) = self.subtypes[subtype_index]
 
     def do_action(self, player: Player):
         player.replace_object(self.from_type, self.to_type)
@@ -43,6 +46,9 @@ class ConvertCitizen(Action):
     @classmethod
     def get_subtypes(cls) -> int:
         return len(cls.subtypes)
+
+    def __str__(self):
+        return f"Action: {self.from_type.__name__} -> {self.to_type.__name__}"
 
 
 action_order = [NoAction, ConvertCitizen]
