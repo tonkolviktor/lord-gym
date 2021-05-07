@@ -24,3 +24,8 @@ INFO:lord_gym.envs.game:\----------/
 INFO:lord_gym.envs.game:Resource.GOLD: 100, Resource.WOOD: 40, Resource.IRON: 15, Resource.STONE: 40
 INFO:lord_gym.envs.game:GeneralCitizen: 2, IronMan: 1, WoodsMan: 1, StoneMan: 1
 ```
+
+# Versions
+
+## 0.0.1 
+Goal is to learn which actions have no effect and in the end convert Citizens to Woodsman, Stoneman and Ironman.
